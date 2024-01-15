@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio Data Collection</title>
+    <script src="recorder.js"></script>
+    <style>
+      .container {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      let recorders = [];
+
+      function startRecording(index) {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then(function (stream) {
+            const recorder = new Recorder(stream);
+            recorders[index] = recorder;
+
+            recorder.record();
+
+            console.log(`Recording started for container ${index + 1}`);
+          })
+          .catch(function (err) {
+            console.error("Error accessing microphone:", err);
+          });
+      }
+
+      function stopRecording(index) {
+        if (recorders[index]) {
+          recorders[index].stop();
+          recorders[index].exportWAV(function (blob) {
+            const audioUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = audioUrl;
+            downloadLink.download = `audio_${index + 1}.mp3`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            console.log(
+              `Recording stopped and saved for container ${index + 1}`
+            );
+          });
+        } else {
+          console.error(`No recorder found for container ${index + 1}`);
+        }
+      }
+
+      function getRandomPrompt() {
+        const prompts = [
+          "The quick brown fox jumps over the lazy dog.",
+          "A journey of a thousand miles begins with a single step.",
+          "In the beginning, God created the heavens and the earth.",
+          // Add more prompts as needed
+        ];
+        const randomIndex = Math.floor(Math.random() * prompts.length);
+        return prompts[randomIndex];
+      }
+
+      function createContainers() {
+        const containerDiv = document.getElementById("container-div");
+
+        for (let i = 0; i < 25; i++) {
+          const container = document.createElement("div");
+          container.classList.add("container");
+
+          const prompt = document.createElement("p");
+          prompt.innerText = getRandomPrompt();
+
+          const startButton = document.createElement("button");
+          startButton.innerText = "Start";
+          startButton.onclick = function () {
+            startRecording(i);
+          };
+
+          const stopButton = document.createElement("button");
+          stopButton.innerText = "Stop & Save";
+          stopButton.onclick = function () {
+            stopRecording(i);
+          };
+
+          container.appendChild(prompt);
+          container.appendChild(startButton);
+          container.appendChild(stopButton);
+
+          containerDiv.appendChild(container);
+        }
+      }
+
+      window.onload = createContainers;
+    </script>
+
+    <div id="container-div"></div>
+  </body>
+</html>
