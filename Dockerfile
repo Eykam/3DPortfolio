@@ -3,10 +3,10 @@ FROM node:latest
 WORKDIR /app
 
 COPY ./package.json ./package.json
-COPY ./yarn.lock ./yarn.lock
-COPY ./vite.config.js ./vite.config.js
-RUN yarn upgrade
-RUN yarn install
+
+
+RUN npm install -g npm
+RUN npm install
 
 
 COPY ./dist ./dist
