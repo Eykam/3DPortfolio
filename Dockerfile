@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./package.json ./package.json
 COPY ./yarn.lock ./yarn.lock
 
-RUN yarn yarn global add yarn
+RUN yarn upgrade
 RUN yarn install
 
 COPY ./dist ./dist
